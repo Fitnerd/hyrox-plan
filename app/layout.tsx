@@ -14,7 +14,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Hyrox Plan',
-  description: 'Dein persönlicher KI-Hyrox-Trainingsplan',
+  description: 'Dein persönlicher KI-generierter Hyrox-Trainingsplan',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Hyrox Plan',
+  },
 };
 
 export default function RootLayout({
