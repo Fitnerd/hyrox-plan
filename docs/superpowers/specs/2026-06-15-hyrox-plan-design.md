@@ -1,6 +1,10 @@
 # Hyrox Plan — Design Spec
 _2026-06-15_
 
+## Ausgangslage
+
+Die bestehende `index.html` ist eine vollständige, personalisierte Single-File PWA für einen einzelnen User (Hyrox Doubles, Nov 2026). Sie dient als **Feature-Referenz und Design-Inspiration**, wird aber nicht erweitert — die neue App ist ein vollständiger Next.js Rewrite für die Allgemeinheit.
+
 ## Ziel
 
 Eine Next.js Web-App (PWA) die es jedem ermöglicht, nach Eingabe seiner persönlichen Werte einen KI-generierten, personalisierten Hyrox-Trainingsplan zu erhalten und seinen Bestandstest-Fortschritt zu tracken.
