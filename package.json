@@ -2,6 +2,9 @@
   "name": "hyrox-app",
   "version": "0.1.0",
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": ["@prisma/engines", "prisma", "sharp", "unrs-resolver"]
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
