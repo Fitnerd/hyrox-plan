@@ -21,6 +21,10 @@ COPY . .
 RUN pnpm prisma generate
 
 # Build Next.js (standalone output)
+# DATABASE_URL dummy is needed so Prisma can be instantiated during build
+# The real URL is injected at runtime via docker-compose
+ARG DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+ENV DATABASE_URL=$DATABASE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
