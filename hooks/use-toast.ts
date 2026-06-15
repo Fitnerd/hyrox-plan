@@ -1,11 +1,11 @@
 import * as React from "react"
 
-import type { Toast, ToastActionElement } from "@/components/ui/toast"
+import { Toast } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
-type ToasterToast = Toast & {
+type ToasterToast = React.ComponentPropsWithoutRef<typeof Toast> & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
@@ -86,7 +86,7 @@ const reducer = (state: State, action: Action): State => {
         toastTimeouts.set(
           toastId,
           setTimeout(() => {
-            removeToastAction(toastId)
+            dispatch(removeToastAction(toastId))
           }, TOAST_REMOVE_DELAY)
         )
       } else {
@@ -94,7 +94,7 @@ const reducer = (state: State, action: Action): State => {
           toastTimeouts.set(
             toast.id,
             setTimeout(() => {
-              removeToastAction(toast.id)
+              dispatch(removeToastAction(toast.id))
             }, TOAST_REMOVE_DELAY)
           )
         })
