@@ -1,0 +1,10 @@
+{
+  "name": "Hyrox Plan",
+  "short_name": "HyroxPlan",
+  "description": "Dein persönlicher KI-generierter Hyrox-Trainingsplan",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait"
+}
