@@ -11,7 +11,13 @@ Deployment-Anleitung: siehe [DEPLOYMENT.md](./DEPLOYMENT.md)
 - [ ] `ANTHROPIC_API_KEY` eintragen (console.anthropic.com)
 - [ ] Erste Migration: `docker compose run --rm app sh -c "pnpm prisma migrate deploy"`
 - [ ] App starten: `docker compose up -d --build`
-- [ ] Reverse Proxy einrichten (Caddy empfohlen — übernimmt HTTPS automatisch)
+- [ ] Reverse Proxy + HTTPS einrichten:
+  - Domain kaufen und DNS auf Server-IP zeigen lassen
+  - Caddy installieren (`apt install caddy`)
+  - `Caddyfile` anlegen: `deine-domain.com { reverse_proxy localhost:3000 }`
+  - Caddy übernimmt SSL-Zertifikat automatisch (Let's Encrypt)
+  - `NEXTAUTH_URL` in `.env` auf `https://deine-domain.com` aktualisieren
+  - Container neu starten: `docker compose up -d`
 - [ ] App Icons erstellen und in `public/icons/` ablegen (192×192 und 512×512 PNG)
 
 ---
