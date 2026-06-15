@@ -2,13 +2,17 @@
 
 ## Deployment
 
-- [ ] Supabase PostgreSQL Datenbank anlegen (supabase.com → neues Projekt → Connection String kopieren)
-- [ ] `DATABASE_URL` in Hosting-Plattform als Umgebungsvariable setzen
-- [ ] `NEXTAUTH_SECRET` generieren (`openssl rand -base64 32`) und als Umgebungsvariable setzen
-- [ ] `NEXTAUTH_URL` setzen (z.B. `https://deine-domain.com`)
-- [ ] `pnpm prisma migrate deploy` auf dem Server ausführen
+Deployment-Anleitung: siehe [DEPLOYMENT.md](./DEPLOYMENT.md)
+
+- [ ] Supabase Projekt anlegen und `DATABASE_URL` kopieren
+- [ ] `.env` Datei auf dem Server anlegen (Vorlage: `.env.example`)
+- [ ] `NEXTAUTH_SECRET` generieren: `openssl rand -base64 32`
+- [ ] `ENCRYPTION_SECRET` generieren: `openssl rand -base64 32`
+- [ ] `ANTHROPIC_API_KEY` eintragen (console.anthropic.com)
+- [ ] Erste Migration: `docker compose run --rm app sh -c "pnpm prisma migrate deploy"`
+- [ ] App starten: `docker compose up -d --build`
+- [ ] Reverse Proxy einrichten (Caddy empfohlen — übernimmt HTTPS automatisch)
 - [ ] App Icons erstellen und in `public/icons/` ablegen (192×192 und 512×512 PNG)
-- [ ] App deployen (Railway, Render oder eigener Server)
 
 ---
 
