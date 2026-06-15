@@ -1,12 +1,23 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { buildPlanPrompt } from './prompt'
 import { parsePlanResponse } from './parse'
 import { calcPaces } from '@/lib/utils/pace'
 import { prisma } from '@/lib/db/prisma'
-
-const client = new Anthropic()
+import { decrypt } from '@/lib/crypto/encrypt'
+import { streamPlan, AiProvider } from './client'
 
 export async function* generatePlanStream(userId: string): AsyncGenerator<string> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { aiProvider: true, aiApiKeyEncrypted: true },
+  })
+
+  if (!user?.aiProvider || !user?.aiApiKeyEncrypted) {
+    throw new Error('Kein AI-Provider konfiguriert. Bitte gehe zu Profil → Provider ändern.')
+  }
+
+  const apiKey = decrypt(user.aiApiKeyEncrypted)
+  const provider = user.aiProvider as AiProvider
+
   const profile = await prisma.profile.findUnique({ where: { userId } })
   if (!profile) throw new Error('Profile not found')
 
@@ -62,100 +73,35 @@ export async function* generatePlanStream(userId: string): AsyncGenerator<string
     splits,
   })
 
-  const stream = client.messages.stream({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 8192,
-    messages: [{ role: 'user', content: prompt }],
-    tools: [
-      {
-        name: 'save_plan',
-        description: 'Save the training plan as structured data',
-        input_schema: {
-          type: 'object' as const,
-          properties: {
-            coachAnalysis: { type: 'string', description: 'Coach analysis text (German)' },
-            paces: {
-              type: 'object',
-              properties: {
-                easyMin: { type: 'string' }, easyMax: { type: 'string' },
-                longRunMin: { type: 'string' }, longRunMax: { type: 'string' },
-                tempo: { type: 'string' }, kombiStart: { type: 'string' },
-                kombiEnd: { type: 'string' }, ziel5km: { type: 'string' },
-              },
-              required: ['easyMin', 'easyMax', 'longRunMin', 'longRunMax', 'tempo', 'kombiStart', 'kombiEnd', 'ziel5km'],
-            },
-            stationsPrioritaeten: {
-              type: 'array',
-              items: { type: 'string' },
-              description: 'Stations ordered by training priority',
-            },
-            phasen: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  nummer: { type: 'number' }, wochenVon: { type: 'number' },
-                  wochenBis: { type: 'number' }, titel: { type: 'string' },
-                  fokus: { type: 'string' },
-                },
-                required: ['nummer', 'wochenVon', 'wochenBis', 'titel', 'fokus'],
-              },
-            },
-            wochen: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  nummer: { type: 'number' },
-                  phase: { type: 'number' },
-                  einheiten: {
-                    type: 'object',
-                    properties: {
-                      MI: { type: 'object' },
-                      SA: { type: 'object' },
-                      SO: { type: 'object' },
-                    },
-                  },
-                },
-                required: ['nummer', 'phase', 'einheiten'],
-              },
-            },
-          },
-          required: ['coachAnalysis', 'paces', 'stationsPrioritaeten', 'phasen', 'wochen'],
-        },
-      },
-    ],
-    tool_choice: { type: 'auto' },
-  })
+  const gen = streamPlan(provider, apiKey, prompt)
+  let planData: Record<string, unknown> | null = null
 
-  for await (const event of stream) {
-    if (
-      event.type === 'content_block_delta' &&
-      event.delta.type === 'text_delta'
-    ) {
-      yield event.delta.text
+  while (true) {
+    const result = await gen.next()
+    if (result.done) {
+      planData = result.value
+      break
     }
+    yield result.value
   }
 
-  const finalMessage = await stream.finalMessage()
-  const toolUse = finalMessage.content.find(b => b.type === 'tool_use')
-
-  if (toolUse && toolUse.type === 'tool_use') {
-    const planData = parsePlanResponse(toolUse.input)
-    await prisma.trainingPlan.create({
-      data: {
-        userId,
-        coachAnalysis: planData.coachAnalysis,
-        paces: planData.paces as object,
-        content: {
-          phasen: planData.phasen,
-          wochen: planData.wochen,
-        },
-        stationsPrios: planData.stationsPrioritaeten,
-      },
-    })
-    yield '\n\n__PLAN_SAVED__'
-  } else {
+  if (!planData) {
     yield '\n\n__PLAN_ERROR__'
+    return
   }
+
+  const parsed = parsePlanResponse(planData)
+  await prisma.trainingPlan.create({
+    data: {
+      userId,
+      coachAnalysis: parsed.coachAnalysis,
+      paces: parsed.paces as object,
+      content: {
+        phasen: parsed.phasen,
+        wochen: parsed.wochen,
+      },
+      stationsPrios: parsed.stationsPrioritaeten,
+    },
+  })
+  yield '\n\n__PLAN_SAVED__'
 }

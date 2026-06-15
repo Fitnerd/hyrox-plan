@@ -2,7 +2,14 @@ import { auth } from '@/lib/auth/config'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db/prisma'
 import { RegenButton } from '@/components/profil/RegenButton'
+import { ProviderEditDialog } from '@/components/profil/ProviderEditDialog'
 import Link from 'next/link'
+
+const PROVIDER_LABELS: Record<string, string> = {
+  ANTHROPIC: 'Anthropic Claude',
+  GEMINI: 'Google Gemini',
+  OPENAI: 'OpenAI GPT-4o',
+}
 
 export default async function ProfilPage() {
   const session = await auth()
@@ -11,7 +18,7 @@ export default async function ProfilPage() {
   const userId = session.user.id
   const [profile, user] = await Promise.all([
     prisma.profile.findUnique({ where: { userId } }),
-    prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, aiProvider: true, aiApiKeyEncrypted: true } }),
   ])
 
   if (!profile) redirect('/onboarding/profil')
@@ -71,6 +78,24 @@ export default async function ProfilPage() {
               <dd>{profile.andereAktivitaeten}</dd>
             </div>
           )}
+        </dl>
+      </div>
+
+      {/* AI Provider */}
+      <div className="rounded-xl border bg-card p-6 space-y-3">
+        <div className="flex justify-between items-start">
+          <h2 className="font-semibold">KI-Anbieter</h2>
+          <ProviderEditDialog currentProvider={user?.aiProvider ?? null} />
+        </div>
+        <dl className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <dt className="text-muted-foreground">Anbieter</dt>
+            <dd>{user?.aiProvider ? PROVIDER_LABELS[user.aiProvider] : '—'}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-muted-foreground">API Key</dt>
+            <dd>{user?.aiApiKeyEncrypted ? '••••••••' : '—'}</dd>
+          </div>
         </dl>
       </div>
 
