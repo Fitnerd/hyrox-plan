@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime       @default(now())
+  profile      Profile?
+  races        PreviousRace[]
+  plans        TrainingPlan[]
+  tests        BestandsTest[]
+  accounts     Account[]
+  sessions     Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Profile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alter              Int
+  gewicht            Float
+  wettkampfdatum     DateTime
+  format             Format
+  trainingstage      String[]
+  andereAktivitaeten String?
+  fuenfKmZeit        Int?
+}
+
+model PreviousRace {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gesamtzeit Int
+  format     Format
+  splits     Split[]
+}
+
+model Split {
+  id          String       @id @default(cuid())
+  raceId      String
+  race        PreviousRace @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  station     Station
+  zeit        Int
+  platzierung Int?
+}
+
+model TrainingPlan {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generatedAt   DateTime @default(now())
+  coachAnalysis String
+  paces         Json
+  content       Json
+  stationsPrios String[]
+}
+
+model BestandsTest {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  datum     DateTime
+  kategorie Kategorie
+  name      String
+  wert      Float
+  einheit   String
+}
+
+enum Format {
+  SOLO
+  DOUBLES
+}
+
+enum Station {
+  SKIERG
+  SLED_PUSH
+  SLED_PULL
+  BURPEE
+  ROWING
+  FARMERS
+  SANDBAG
+  WALLBALLS
+}
+
+enum Kategorie {
+  AUSDAUER
+  KRAFT
+  MOBILITAET
+}
