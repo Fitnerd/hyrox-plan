@@ -1,65 +1,79 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-background">
+      {/* Hero */}
+      <section className="max-w-2xl mx-auto px-4 pt-16 pb-12 text-center">
+        <h1 className="text-4xl font-bold tracking-tight mb-4">
+          Dein persönlicher<br />Hyrox-Trainingsplan
+        </h1>
+        <p className="text-lg text-muted-foreground mb-8">
+          KI-generiert. Auf dich zugeschnitten. Bereit in 2 Minuten.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button asChild size="lg">
+            <Link href="/register">Jetzt starten — kostenlos</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link href="/login">Anmelden</Link>
+          </Button>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Features */}
+      <section className="max-w-2xl mx-auto px-4 pb-16">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border bg-card p-6 text-center">
+            <div className="text-3xl mb-3">🤖</div>
+            <h3 className="font-semibold mb-1">KI-Coach</h3>
+            <p className="text-sm text-muted-foreground">Claude analysiert dein Profil und erstellt einen individuellen Plan</p>
+          </div>
+          <div className="rounded-xl border bg-card p-6 text-center">
+            <div className="text-3xl mb-3">📊</div>
+            <h3 className="font-semibold mb-1">Bestandstest</h3>
+            <p className="text-sm text-muted-foreground">Tracke deinen Fortschritt mit regelmäßigen Tests</p>
+          </div>
+          <div className="rounded-xl border bg-card p-6 text-center">
+            <div className="text-3xl mb-3">📱</div>
+            <h3 className="font-semibold mb-1">Offline-fähig</h3>
+            <p className="text-sm text-muted-foreground">Dein Plan ist immer verfügbar — auch ohne Internet</p>
+          </div>
         </div>
-      </main>
-    </div>
-  );
+      </section>
+
+      {/* How it works */}
+      <section className="bg-muted/50 py-12">
+        <div className="max-w-2xl mx-auto px-4">
+          <h2 className="text-2xl font-bold text-center mb-8">So funktioniert's</h2>
+          <div className="space-y-4">
+            {[
+              { step: '1', title: 'Profil anlegen', desc: 'Alter, Gewicht, Wettkampfdatum, Trainingstage' },
+              { step: '2', title: 'Erfahrung angeben', desc: 'Erster Hyrox oder Vorjahresergebnisse eingeben' },
+              { step: '3', title: 'Plan erhalten', desc: 'Claude erstellt deinen personalisierten Plan in Sekunden' },
+            ].map(item => (
+              <div key={item.step} className="flex gap-4 items-start">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 text-sm">
+                  {item.step}
+                </div>
+                <div>
+                  <p className="font-semibold">{item.title}</p>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer CTA */}
+      <section className="max-w-2xl mx-auto px-4 py-12 text-center">
+        <p className="text-muted-foreground mb-4">Bereit für deinen Hyrox?</p>
+        <Button asChild size="lg">
+          <Link href="/register">Plan erstellen →</Link>
+        </Button>
+      </section>
+    </main>
+  )
 }
