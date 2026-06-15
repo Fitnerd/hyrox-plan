@@ -9,7 +9,8 @@ export default async function DashboardPage() {
 
   const userId = session.user.id
 
-  const [profile, plan, lastTest] = await Promise.all([
+  const [user, profile, plan, lastTest] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { aiProvider: true } }),
     prisma.profile.findUnique({ where: { userId } }),
     prisma.trainingPlan.findFirst({
       where: { userId },
@@ -21,6 +22,7 @@ export default async function DashboardPage() {
     }),
   ])
 
+  if (!user?.aiProvider) redirect('/onboarding/provider')
   if (!profile) redirect('/onboarding/profil')
   if (!plan) redirect('/onboarding/generieren')
 

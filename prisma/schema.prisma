@@ -7,17 +7,19 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(cuid())
-  email        String         @unique
-  passwordHash String
-  name         String?
-  createdAt    DateTime       @default(now())
-  profile      Profile?
-  races        PreviousRace[]
-  plans        TrainingPlan[]
-  tests        BestandsTest[]
-  accounts     Account[]
-  sessions     Session[]
+  id                String         @id @default(cuid())
+  email             String         @unique
+  passwordHash      String
+  name              String?
+  createdAt         DateTime       @default(now())
+  aiProvider        AiProvider?
+  aiApiKeyEncrypted String?
+  profile           Profile?
+  races             PreviousRace[]
+  plans             TrainingPlan[]
+  tests             BestandsTest[]
+  accounts          Account[]
+  sessions          Session[]
 }
 
 model Account {
@@ -119,4 +121,10 @@ enum Kategorie {
   AUSDAUER
   KRAFT
   MOBILITAET
+}
+
+enum AiProvider {
+  ANTHROPIC
+  GEMINI
+  OPENAI
 }

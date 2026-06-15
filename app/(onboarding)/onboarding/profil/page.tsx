@@ -5,7 +5,7 @@ export default function OnboardingProfilPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-6">
-          <p className="text-sm text-muted-foreground">Schritt 1 von 2</p>
+          <p className="text-sm text-muted-foreground">Schritt 2 von 3</p>
           <h1 className="text-2xl font-bold">Dein Profil</h1>
         </div>
         <ProfilForm />
