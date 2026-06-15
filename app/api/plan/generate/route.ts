@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err)
+        console.error('[plan/generate] Error:', err)
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`)
         )
