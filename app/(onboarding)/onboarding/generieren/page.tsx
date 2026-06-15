@@ -11,11 +11,12 @@ export default function OnboardingGenerierenPage() {
   const [streamText, setStreamText] = useState('')
 
   useEffect(() => {
+    const controller = new AbortController()
     let cancelled = false
 
     async function generate() {
       try {
-        const res = await fetch('/api/plan/generate', { method: 'POST' })
+        const res = await fetch('/api/plan/generate', { method: 'POST', signal: controller.signal })
         if (!res.ok || !res.body) {
           setStatus('error')
           return
@@ -58,14 +59,15 @@ export default function OnboardingGenerierenPage() {
             }
           }
         }
-      } catch {
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
         if (!cancelled) setStatus('error')
       }
     }
 
     generate()
-    return () => { cancelled = true }
-  }, [])
+    return () => { cancelled = true; controller.abort() }
+  }, [router])
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

@@ -43,11 +43,14 @@ export async function* generatePlanStream(userId: string): AsyncGenerator<string
     }
   }
 
+  const fmt = profile.format
+  if (fmt !== 'SOLO' && fmt !== 'DOUBLES') throw new Error(`Unknown format: ${fmt}`)
+
   const prompt = buildPlanPrompt({
     profile: {
       alter: profile.alter,
       gewicht: profile.gewicht,
-      format: profile.format as 'SOLO' | 'DOUBLES',
+      format: fmt,
       wettkampfWochen,
       trainingstage: profile.trainingstage,
       andereAktivitaeten: profile.andereAktivitaeten,
@@ -58,8 +61,6 @@ export async function* generatePlanStream(userId: string): AsyncGenerator<string
     gesamtzeit,
     splits,
   })
-
-  let toolInputAccumulator = ''
 
   const stream = client.messages.stream({
     model: 'claude-sonnet-4-6',
@@ -133,12 +134,6 @@ export async function* generatePlanStream(userId: string): AsyncGenerator<string
       event.delta.type === 'text_delta'
     ) {
       yield event.delta.text
-    }
-    if (
-      event.type === 'content_block_delta' &&
-      event.delta.type === 'input_json_delta'
-    ) {
-      toolInputAccumulator += event.delta.partial_json
     }
   }
 
