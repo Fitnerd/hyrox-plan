@@ -1,4 +1,4 @@
-var CACHE_NAME = 'hyrox-plan-v1';
+var CACHE_NAME = 'hyrox-plan-v2';
 var urlsToCache = [
   './',
   './index.html',
@@ -29,19 +29,42 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request).then(function(response) {
-      if (response) return response;
-      return fetch(event.request).then(function(networkResponse) {
+  if (event.request.method !== 'GET') return;
+
+  var isHTML =
+    event.request.mode === 'navigate' ||
+    (event.request.headers.get('accept') || '').indexOf('text/html') !== -1;
+
+  if (isHTML) {
+    // Network-first: immer die aktuelle Seite holen, offline aus dem Cache
+    event.respondWith(
+      fetch(event.request).then(function(networkResponse) {
         if (networkResponse && networkResponse.status === 200) {
-          var responseClone = networkResponse.clone();
+          var clone = networkResponse.clone();
           caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, responseClone);
+            cache.put('./index.html', clone);
           });
         }
         return networkResponse;
       }).catch(function() {
         return caches.match('./index.html');
+      })
+    );
+    return;
+  }
+
+  // Statische Assets: cache-first
+  event.respondWith(
+    caches.match(event.request).then(function(response) {
+      if (response) return response;
+      return fetch(event.request).then(function(networkResponse) {
+        if (networkResponse && networkResponse.status === 200) {
+          var clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(event.request, clone);
+          });
+        }
+        return networkResponse;
       });
     })
   );
